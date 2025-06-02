@@ -3,18 +3,26 @@ import { useDropzone } from "react-dropzone";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
 import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import { SpecialZoomLevel } from "@react-pdf-viewer/core";
+import { useNavigate } from "react-router-dom";
+import { usePDFContext } from "../context/PDFContext";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
 const UploadPage = () => {
-  const [pdfFile, setPdfFile] = useState(null);
-  const [pdfFileURL, setPdfFileURL] = useState(null);
+  const { loadPDF, fileUrl, isLoading, clearPDF } = usePDFContext();
+  const navigate = useNavigate();
 
-  const onDrop = (acceptedFiles) => {
+  const onDrop = async (acceptedFiles) => {
     const file = acceptedFiles[0];
     if (file?.type === "application/pdf") {
-      setPdfFile(file);
-      setPdfFileURL(URL.createObjectURL(file));
+      // Clear any existing PDF
+      clearPDF();
+
+      // Load the new PDF
+      const success = await loadPDF(file);
+      if (!success) {
+        alert("Error loading PDF. Please try again.");
+      }
     } else {
       alert("Please upload a PDF file");
     }
@@ -26,8 +34,11 @@ const UploadPage = () => {
     multiple: false,
   });
 
-  // Initialize the DefaultLayoutPlugin
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
+
+  const handleProceed = () => {
+    navigate("/editor");
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -52,15 +63,29 @@ const UploadPage = () => {
           )}
         </div>
 
-        {pdfFile && (
+        {isLoading && (
+          <div className="mt-4 text-center">
+            <p className="text-blue-600">Loading PDF...</p>
+          </div>
+        )}
+
+        {fileUrl && !isLoading && (
           <div className="mt-4">
-            <p className="text-green-600">File uploaded: {pdfFile.name}</p>
+            <div className="flex justify-between items-center mb-4">
+              <p className="text-green-600">File uploaded successfully!</p>
+              <button
+                onClick={handleProceed}
+                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition-colors"
+              >
+                Proceed to Editor
+              </button>
+            </div>
             <div className="mt-4 border rounded-lg" style={{ height: "750px" }}>
               <Worker
                 workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}
               >
                 <Viewer
-                  fileUrl={pdfFileURL}
+                  fileUrl={fileUrl}
                   plugins={[defaultLayoutPluginInstance]}
                   defaultScale={SpecialZoomLevel.PageFit}
                 />

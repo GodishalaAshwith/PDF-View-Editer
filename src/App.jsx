@@ -5,12 +5,13 @@ import HomePage from "./Pages/HomePage";
 import UploadPage from "./Pages/UploadPage";
 import EditorPage from "./Pages/EditorPage";
 import Layout from "./components/Layout";
+import { PDFProvider } from "./context/PDFContext";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
-    <>
+    <PDFProvider>
       <Router>
         <Routes>
           <Route element={<Layout />}>
@@ -20,7 +21,7 @@ function App() {
           </Route>
         </Routes>
       </Router>
-    </>
+    </PDFProvider>
   );
 }
 
