@@ -10,10 +10,7 @@ const EditorPage = () => {
   return (
     <div className="h-screen">
       <div className="h-full">
-        <Viewer
-          fileUrl={/* PDF URL */}
-          plugins={[defaultLayoutPluginInstance]}
-        />
+        
       </div>
     </div>
   );
