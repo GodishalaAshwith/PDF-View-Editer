@@ -10,6 +10,7 @@ function App() {
     <>
       <Router>
         <Routes>
+          <Route path="/" element={<UploadPage />} />
           <Route path="/upload" element={<UploadPage />} />
         </Routes>
       </Router>
