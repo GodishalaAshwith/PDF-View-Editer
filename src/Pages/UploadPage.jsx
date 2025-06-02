@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { Worker, Viewer } from "@react-pdf-viewer/core";
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import { SpecialZoomLevel } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 
 const UploadPage = () => {
   const [pdfFile, setPdfFile] = useState(null);
@@ -11,7 +14,7 @@ const UploadPage = () => {
     const file = acceptedFiles[0];
     if (file?.type === "application/pdf") {
       setPdfFile(file);
-      setPdfFileURL(URL.createObjectURL(file)); // Create a URL for the PDF file
+      setPdfFileURL(URL.createObjectURL(file));
     } else {
       alert("Please upload a PDF file");
     }
@@ -22,6 +25,9 @@ const UploadPage = () => {
     accept: { "application/pdf": [".pdf"] },
     multiple: false,
   });
+
+  // Initialize the DefaultLayoutPlugin
+  const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -49,9 +55,15 @@ const UploadPage = () => {
         {pdfFile && (
           <div className="mt-4">
             <p className="text-green-600">File uploaded: {pdfFile.name}</p>
-            <div className="mt-4 border rounded-lg">
-              <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
-                <Viewer fileUrl={pdfFileURL} />
+            <div className="mt-4 border rounded-lg" style={{ height: "750px" }}>
+              <Worker
+                workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}
+              >
+                <Viewer
+                  fileUrl={pdfFileURL}
+                  plugins={[defaultLayoutPluginInstance]}
+                  defaultScale={SpecialZoomLevel.PageFit}
+                />
               </Worker>
             </div>
           </div>
