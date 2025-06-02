@@ -1,5 +1,5 @@
-import { createContext, useContext, useState } from 'react';
-import { PDFDocument } from 'pdf-lib';
+import { createContext, useContext, useState } from "react";
+import { PDFDocument } from "pdf-lib";
 
 const PDFContext = createContext();
 
@@ -9,7 +9,7 @@ export const PDFProvider = ({ children }) => {
   const [pdfFile, setPdfFile] = useState(null);
   const [pdfDoc, setPdfDoc] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [editMode, setEditMode] = useState('view');
+  const [editMode, setEditMode] = useState("view");
   const [isLoading, setIsLoading] = useState(false);
   const [fileUrl, setFileUrl] = useState(null);
 
@@ -28,7 +28,7 @@ export const PDFProvider = ({ children }) => {
       setIsLoading(false);
       return true;
     } catch (error) {
-      console.error('Error loading PDF:', error);
+      console.error("Error loading PDF:", error);
       setIsLoading(false);
       return false;
     }
@@ -42,7 +42,27 @@ export const PDFProvider = ({ children }) => {
     setPdfDoc(null);
     setFileUrl(null);
     setCurrentPage(1);
-    setEditMode('view');
+    setEditMode("view");
+  };
+
+  // Helper function to update PDF file and URL
+  const updatePDF = async (modifiedPdf) => {
+    const blob = new Blob([modifiedPdf], { type: "application/pdf" });
+    const newFile = new File([blob], pdfFile.name, {
+      type: "application/pdf",
+    });
+
+    // Update both the file and URL
+    const newUrl = URL.createObjectURL(newFile);
+    if (fileUrl) {
+      URL.revokeObjectURL(fileUrl);
+    }
+    setFileUrl(newUrl);
+    setPdfFile(newFile);
+
+    // Also update the PDF document for future edits
+    const newPdfDoc = await PDFDocument.load(await blob.arrayBuffer());
+    setPdfDoc(newPdfDoc);
   };
 
   const blurText = async (coordinates) => {
@@ -51,26 +71,17 @@ export const PDFProvider = ({ children }) => {
       const page = pdfDoc.getPages()[currentPage - 1];
       page.drawRectangle({
         x: coordinates.x,
-        y: page.getHeight() - coordinates.y - coordinates.height,
+        y: coordinates.y, // y coordinate is already in PDF space
         width: coordinates.width,
         height: coordinates.height,
         color: { r: 0.9, g: 0.9, b: 0.9 },
         opacity: 0.8,
       });
-      
+
       const modifiedPdf = await pdfDoc.save();
-      const blob = new Blob([modifiedPdf], { type: 'application/pdf' });
-      const newFile = new File([blob], pdfFile.name, { type: 'application/pdf' });
-      
-      // Update both the file and URL
-      const newUrl = URL.createObjectURL(newFile);
-      if (fileUrl) {
-        URL.revokeObjectURL(fileUrl);
-      }
-      setFileUrl(newUrl);
-      setPdfFile(newFile);
+      await updatePDF(modifiedPdf);
     } catch (error) {
-      console.error('Error blurring text:', error);
+      console.error("Error blurring text:", error);
     }
   };
 
@@ -80,26 +91,17 @@ export const PDFProvider = ({ children }) => {
       const page = pdfDoc.getPages()[currentPage - 1];
       page.drawRectangle({
         x: coordinates.x,
-        y: page.getHeight() - coordinates.y - coordinates.height,
+        y: coordinates.y, // y coordinate is already in PDF space
         width: coordinates.width,
         height: coordinates.height,
         color: { r: 1, g: 1, b: 1 },
         opacity: 1,
       });
-      
+
       const modifiedPdf = await pdfDoc.save();
-      const blob = new Blob([modifiedPdf], { type: 'application/pdf' });
-      const newFile = new File([blob], pdfFile.name, { type: 'application/pdf' });
-      
-      // Update both the file and URL
-      const newUrl = URL.createObjectURL(newFile);
-      if (fileUrl) {
-        URL.revokeObjectURL(fileUrl);
-      }
-      setFileUrl(newUrl);
-      setPdfFile(newFile);
+      await updatePDF(modifiedPdf);
     } catch (error) {
-      console.error('Error erasing text:', error);
+      console.error("Error erasing text:", error);
     }
   };
 
@@ -109,24 +111,15 @@ export const PDFProvider = ({ children }) => {
       const page = pdfDoc.getPages()[currentPage - 1];
       page.drawText(text, {
         x: coordinates.x,
-        y: page.getHeight() - coordinates.y,
+        y: coordinates.y, // y coordinate is already in PDF space
         size: 12,
         color: { r: 0, g: 0, b: 0 },
       });
-      
+
       const modifiedPdf = await pdfDoc.save();
-      const blob = new Blob([modifiedPdf], { type: 'application/pdf' });
-      const newFile = new File([blob], pdfFile.name, { type: 'application/pdf' });
-      
-      // Update both the file and URL
-      const newUrl = URL.createObjectURL(newFile);
-      if (fileUrl) {
-        URL.revokeObjectURL(fileUrl);
-      }
-      setFileUrl(newUrl);
-      setPdfFile(newFile);
+      await updatePDF(modifiedPdf);
     } catch (error) {
-      console.error('Error adding text:', error);
+      console.error("Error adding text:", error);
     }
   };
 
