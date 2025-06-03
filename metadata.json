@@ -1,0 +1,5 @@
+
+{
+  "name": "React PDF Editor",
+  "description": "A web application to upload, view, and perform basic edits (blur, erase, add text) on PDF files, and save the modified PDF. Edits are applied on a canvas overlay and saved as an image-based PDF."
+}

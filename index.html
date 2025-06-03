@@ -1,12 +1,81 @@
+
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PDF-View-Editor</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    <title>React PDF Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {"50":"#eff6ff","100":"#dbeafe","200":"#bfdbfe","300":"#93c5fd","400":"#60a5fa","500":"#3b82f6","600":"#2563eb","700":"#1d4ed8","800":"#1e40af","900":"#1e3a8a","950":"#172554"},
+                        secondary: {"50":"#f8fafc","100":"#f1f5f9","200":"#e2e8f0","300":"#cbd5e1","400":"#94a3b8","500":"#64748b","600":"#475569","700":"#334155","800":"#1e293b","900":"#0f172a","950":"#020617"}
+                    },
+                    animation: {
+                        'spin-slow': 'spin 3s linear infinite',
+                      },
+                }
+            }
+        }
+    </script>
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif; /* A nice sans-serif font */
+      }
+      /* Custom cursor styles for tools */
+      .cursor-blur { cursor: crosshair; } /* Example, could be more specific */
+      .cursor-erase { cursor: crosshair; } /* Example */
+      .cursor-text { cursor: text; }
+      .pdf-canvas-container {
+        max-width: 90vw; /* Limit width of canvas container */
+        max-height: 75vh; /* Limit height of canvas container */
+        overflow: auto; /* Allow scrolling for large PDFs */
+        margin: 0 auto; /* Center the container */
+        border: 1px solid #cbd5e1; /* Light border for the canvas area */
+        background-color: #e2e8f0; /* Light background for contrast */
+      }
+      canvas {
+        display: block; /* Remove extra space below canvas */
+        margin: 0 auto; /* Center canvas within the scrollable container */
+      }
+      .tool-button.active {
+        background-color: #2563eb; /* primary-600 */
+        color: white;
+      }
+      .loader {
+        border: 4px solid #f3f3f3; /* Light grey */
+        border-top: 4px solid #3b82f6; /* Blue */
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-secondary-100 min-h-screen flex flex-col">
+    <div id="root" class="flex-grow flex flex-col"></div>
+    <script type="module" src="/index.tsx"></script>
+</body>
 </html>
